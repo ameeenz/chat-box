@@ -1,0 +1,45 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>ChatBox</title>
+</head>
+<body>
+    <div style="height:500px; width:500px; margin:10px auto; border:2px dashed maroon; overflow:auto" id="Box"> 
+    </div>
+    <div>
+        Name:<input type="text" id="txtName"/>
+        <br/>
+        Message:<input type="text" id="txtMessage"/>
+        <br/>
+        <input type="button" value="Send" id="btnSend"/>
+    </div>
+    <script src="~/Scripts/jquery-3.3.1.min.js"></script>
+    <script src="~/Scripts/jquery.signalR-2.4.2.min.js"></script>
+    <script src="/signalr/hubs"></script>
+    <script>
+        $(document).ready(function () {
+            var myConnection = $.connection.newHub;
+            myConnection.client.SEND = function (name, message) {
+                $('#Box').append('<p><strong>' + name + ':</strong>' + message + '</p>');
+            }
+            myConnection.client.ShowOperation = function (Message, Color) {
+                $('#Box').append('<p style="color:' + Color + '"><strong>' + Message + ':</strong></p>');
+            }
+            $.connection.hub.start().done(function () {
+                myConnection.server.watcher();
+                $('#btnSend').click(function () {
+                    myConnection.server.sendMessage($('#txtName').val(), $('#txtMessage').val());
+                });
+            });
+            
+        });
+    </script>
+</body>
+</html>
